@@ -12,6 +12,8 @@ use std::{
 // better performance but is not always intuitive behaviour.
 // use std::io::BufWriter;
 
+mod webapp;
+
 #[derive(Parser, Debug)]
 #[clap(
     name = "{{project-name}}",
@@ -19,6 +21,10 @@ use std::{
     version = concat!(env!("CARGO_PKG_VERSION"), concat!("_", env!("GIT_SHORT_HASH")))
 )]
 struct Options {
+    /// Suppress non-error messages
+    #[structopt(short)]
+    quiet: bool,
+
     /// Increase logging verbosity
     #[clap(short, parse(from_occurrences))]
     verbosity: usize,
@@ -31,31 +37,32 @@ struct Options {
     #[clap(parse(from_os_str))]
     path: PathBuf,
 
+    /// Webserver Port Number
+    #[clap(long, default_value = "8080", env = "BIND_PORT")]
+    webserver_port: u16,
+
     /// Example String-valued Argument
     #[clap(default_value = "some value", env = "SOME_ENV_VAR")]
     pattern: String,
+
+    /// Webserver IP Address
+    #[clap(long, default_value = "::1", env = "BIND_ADDRESS")]
+    webserver_bind_address: std::net::IpAddr,
 }
 
 fn main() {
     let args = Options::from_args();
-    let level = vec![Error, Info, Debug, Trace][(args.verbosity).min(3)];
-    if args.verbosity > 0 {
-        SimpleLogger::new()
-            .with_level(level)
-            .init()
-            .expect("SimpleLogger instantiation failed.");
-    }
+    let level = match args.quiet {
+        true => Error,
+        false => vec![Info, Debug, Trace][(args.verbosity).min(2)],
+    };
+
+    SimpleLogger::new()
+        .with_level(level)
+        .init()
+        .expect("SimpleLogger instantiation failed.");
 
     log::info!("Logging with level {}", level);
 
-    let contents = fs::read_to_string(&args.path).expect("Could not read file.");
-    let mut stdout = io::stdout();
-    // (Buf) Wraps stdout in a buffer.
-    // let mut stdout = BufWriter::new(stdout);
-
-    for (line_no, line) in contents.lines().enumerate() {
-        if line.contains(&args.pattern) {
-            let _ = writeln!(stdout, "{}: {}", line_no + 1, line);
-        }
-    }
+    webapp::main(args.webserver_bind_address, args.webserver_port).unwrap();
 }
