@@ -1,3 +1,4 @@
+use anyhow::Result; // Consider https://github.com/dtolnay/thiserror if we care what error type our functions return
 use log;
 use log::LevelFilter::{Debug, Error, Info, Trace};
 use simple_logger::SimpleLogger;

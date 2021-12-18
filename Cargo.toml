@@ -2,9 +2,11 @@
 name = "{{project-name}}"
 version = "0.1.0"
 authors = ["{{authors}}"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
+# https://doc.rust-lang.org/cargo/reference/resolver.html
+anyhow = "1.0.41"
 log = "0.4.14"
-simple_logger = "1.11.0"
+simple_logger = "=1.15.0"
 structopt = "0.3.21"
