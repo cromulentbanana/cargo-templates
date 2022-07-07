@@ -1,4 +1,5 @@
 use anyhow::Result; // Consider https://github.com/dtolnay/thiserror if we care what error type our functions return
+use clap::Parser;
 use log;
 use log::LevelFilter::{Debug, Error, Info, Trace};
 use simple_logger::SimpleLogger;
@@ -7,32 +8,31 @@ use std::{
     fs,
     io::{self, Write},
 };
-use structopt::StructOpt;
 // (Buf) Uncomment these lines to have the output buffered, this can provide
 // better performance but is not always intuitive behaviour.
 // use std::io::BufWriter;
 
-#[derive(StructOpt, Debug)]
-#[structopt(
+#[derive(Parser, Debug)]
+#[clap(
     name = "{{project-name}}",
     about = "A short description of this project.",
     version = concat!(env!("CARGO_PKG_VERSION"), concat!("_", env!("GIT_SHORT_HASH")))
 )]
 struct Options {
     /// Increase logging verbosity
-    #[structopt(short, parse(from_occurrences))]
+    #[clap(short, parse(from_occurrences))]
     verbosity: usize,
 
     /// Example optional boolean flag
-    #[structopt(short, long)]
+    #[clap(short, long)]
     some_flag: Option<bool>,
 
     /// Example filesystem path
-    #[structopt(parse(from_os_str))]
+    #[clap(parse(from_os_str))]
     path: PathBuf,
 
     /// Example String-valued Argument
-    #[structopt(default_value = "some value", env = "SOME_ENV_VAR")]
+    #[clap(default_value = "some value", env = "SOME_ENV_VAR")]
     pattern: String,
 }
 
