@@ -1,6 +1,10 @@
 # cargo-template-cli
 Cargo template for generating CLIs
 
-## Run this code
+Things you can do next:
 
+## Run this code
 This code should build and run with the command: `cargo run` or `cargo run -- -h`
+
+## Build the docker container
+docker build . -t {{project-name}}
